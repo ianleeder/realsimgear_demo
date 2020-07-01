@@ -104,6 +104,10 @@ float MyFlightLoopCallback(float  inElapsedSinceLastCall,
     float speed = XPLMGetDataf(gAirspeed);
     float el = XPLMGetDataf(gElevation);
     
+    char str[80];
+    sprintf(str, "Speed = %.1f, El = %.1f", speed, el);
+    
+    XPLMSetMenuItemName(gPluginMenuId, gDebugMenuItemIndex, str, 0);
     /* Write the data to a file. */
     //fprintf(gOutputFile, "Time=%f, lat=%f,lon=%f,el=%f.\n",elapsed, lat, lon, el);
     
