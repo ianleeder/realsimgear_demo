@@ -19,8 +19,13 @@
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
+bool b = false;
+
 void setup() {
   Serial.begin(115200);
+
+  pinMode(D5, OUTPUT);
+  digitalWrite(D5, b);
 
   Wire.begin(D2, D1);
   lcd.begin(16,2);
@@ -32,6 +37,10 @@ void setup() {
 void loop() {
   if (Serial.available()>0)
   {
+    // Blink LED to indicate we've received serial data
+    b = !b;
+    digitalWrite(D5, b);
+    
     String s = Serial.readStringUntil('\n');   // Until CR (Carriage Return)
     //s.replace("#", "");
        

@@ -85,7 +85,9 @@ void OpenSerialPort() {
     // https://stackoverflow.com/a/31508827/5329728
     // Documentation for OPEN command
     // https://pubs.opengroup.org/onlinepubs/009695399/functions/open.html
-    gSerial = open("/dev/tty.usbserial-14330", O_WRONLY|O_NOCTTY|O_NDELAY);
+    
+    //14330
+    gSerial = open("/dev/tty.usbserial-143110", O_WRONLY|O_NOCTTY|O_NDELAY);
     
     // https://man7.org/linux/man-pages/man3/termios.3.html
     struct termios options;
@@ -129,12 +131,11 @@ float MyFlightLoopCallback(float  inElapsedSinceLastCall,
                            int    inCounter,
                            void * inRefcon)
 {
-    float elapsed = XPLMGetElapsedTime();
     float speed = XPLMGetDataf(gAirspeed);
     float el = XPLMGetDataf(gElevation);
     
     char str[80];
-    sprintf(str, "Speed = %.1f, El = %.1f", speed, el);
+    sprintf(str, "Speed = %.1f, El = %.1f\n", speed, el);
     
     XPLMSetMenuItemName(gPluginMenuId, gDebugMenuItemIndex, str, 0);
     write(gSerial, str, 80);
