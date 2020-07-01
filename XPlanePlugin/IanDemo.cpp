@@ -34,6 +34,7 @@ static float MyFlightLoopCallback(float  inElapsedSinceLastCall,
 
 static XPLMDataRef gElevation = NULL;
 static XPLMDataRef gAirspeed = NULL;
+
 static XPLMMenuID gPluginMenuId = NULL;
 static int gDebugMenuItemIndex = -1;
 
@@ -42,18 +43,21 @@ PLUGIN_API int XPluginStart(
 							char *		outSig,
 							char *		outDesc)
 {
-    XPLMMenuID id;
-    
 	strcpy(outName, "IanDemo");
 	strcpy(outSig, "ianleeder.examples.iandemo");
 	strcpy(outDesc, "A demonstration of passing data between the game plugin and an Arduino compatible microcontroller.");
 	
     int myPluginMenuIndex = XPLMAppendMenuItem(XPLMFindPluginsMenu(), "IanDemo", NULL, 1);
 
+    // Create the top level "MyPlugin" Menu
     gPluginMenuId = XPLMCreateMenu("IanDemo", XPLMFindPluginsMenu(), myPluginMenuIndex, ReloadPluginsMenuHandler, NULL);
-    XPLMAppendMenuItem(gPluginMenuId, "Reload", (void *)"Reload plugins",1);
     
+    // Append sub-menus to my top level menu
+    XPLMAppendMenuItem(gPluginMenuId, "Reload", (void *)"Reload plugins",1);
     gDebugMenuItemIndex = XPLMAppendMenuItem(gPluginMenuId, "Test2", (void *)"Reload plugins",1);
+    
+    // Disable my debug menu item
+    XPLMEnableMenuItem(gPluginMenuId, gDebugMenuItemIndex, 0);
     
     gElevation = XPLMFindDataRef("sim/flightmodel/position/elevation");
     gAirspeed = XPLMFindDataRef("sim/flightmodel/position/indicated_airspeed");
