@@ -18,6 +18,9 @@
 #endif
 #include <string.h>
 #include <stdio.h>
+#include <fcntl.h>
+#include <termios.h>
+#include <unistd.h>
 
 #include "XPLMDataAccess.h"
 #include "XPLMPlugin.h"
@@ -31,12 +34,14 @@ static float MyFlightLoopCallback(float  inElapsedSinceLastCall,
                                   float  inElapsedTimeSinceLastFlightLoop,
                                   int    inCounter,
                                   void * inRefcon);
+void OpenSerialPort();
 
 static XPLMDataRef gElevation = NULL;
 static XPLMDataRef gAirspeed = NULL;
 
 static XPLMMenuID gPluginMenuId = NULL;
 static int gDebugMenuItemIndex = -1;
+static int gSerial = -1;
 
 PLUGIN_API int XPluginStart(
 							char *		outName,
@@ -68,13 +73,37 @@ PLUGIN_API int XPluginStart(
             gDataRefreshRate,        /* Interval */
             NULL);                   /* refcon not used. */
     
+    OpenSerialPort();
+    
     /* We must return 1 to indicate successful initialization, otherwise we
      * will not be called back again. */
     return 1;
 }
 
+void OpenSerialPort() {
+    // Example opening serial port
+    // https://stackoverflow.com/a/31508827/5329728
+    // Documentation for OPEN command
+    // https://pubs.opengroup.org/onlinepubs/009695399/functions/open.html
+    gSerial = open("/dev/tty.usbserial-14330", O_WRONLY|O_NOCTTY|O_NDELAY);
+    
+    // https://man7.org/linux/man-pages/man3/termios.3.html
+    struct termios options;
+    
+    tcgetattr(gSerial, &options);                   // Get the current options of the port
+    bzero(&options, sizeof(options));               // Clear all the options
+    cfsetispeed(&options, B115200);                 // Set the baud rate at 115200 bauds
+    cfsetospeed(&options, B115200);
+    options.c_cflag |= ( CLOCAL | CREAD |  CS8);    // Configure the device : 8 bits, no parity, no control
+    options.c_iflag |= ( IGNPAR | IGNBRK );
+    options.c_cc[VTIME]=0;                          // Timer unused
+    options.c_cc[VMIN]=0;                           // At least on character before satisfy reading
+    tcsetattr(gSerial, TCSANOW, &options);          // Activate the settings
+}
+
 PLUGIN_API void	XPluginStop(void)
 {
+    close(gSerial);
     gElevation = NULL;
     gAirspeed = NULL;
 }
@@ -108,8 +137,7 @@ float MyFlightLoopCallback(float  inElapsedSinceLastCall,
     sprintf(str, "Speed = %.1f, El = %.1f", speed, el);
     
     XPLMSetMenuItemName(gPluginMenuId, gDebugMenuItemIndex, str, 0);
-    /* Write the data to a file. */
-    //fprintf(gOutputFile, "Time=%f, lat=%f,lon=%f,el=%f.\n",elapsed, lat, lon, el);
+    write(gSerial, str, 80);
     
     /* Return value indicates when we want to be called again (in seconds). */
     return gDataRefreshRate;
