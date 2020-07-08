@@ -1,3 +1,11 @@
+/*
+ * Wiring info
+ * LCD - NodeMCU
+ * GND - GND
+ * VCC - VV (USB 5V)
+ * SDA - D2
+ * SCL - D1
+ */
 #include <ArduinoJson.h>
 #include <LiquidCrystal_I2C.h>
 
