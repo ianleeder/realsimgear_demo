@@ -27,8 +27,10 @@
 #include "XPLMMenus.h"
 #include "XPLMProcessing.h"
 
+// Build output directory is ~/Library/Developer/Xcode/DerivedData
+
 static const float gDataRefreshRate = 0.5;
-static const char* gSerialDevice = "/dev/tty.usbserial-143110";
+static const char* gSerialDevice = "/dev/tty.usbserial-144110";
 
 static void ReloadPluginsMenuHandler(void * mRef, void * iRef);
 static float MyFlightLoopCallback(float  inElapsedSinceLastCall,
